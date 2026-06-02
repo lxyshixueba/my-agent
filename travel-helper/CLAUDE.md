@@ -13,6 +13,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 ### 项目结构
 
 ```
+├── spec/                        # 功能规范文档
+│   └── <feature-name>/         # 按功能名称组织的规范目录
+│       ├── spec.md             # 功能规范
+│       ├── plan.md             # 实现计划
+│       └── tasks.md            # 任务清单
+│
 ├── backend/                    # 后端代码 (Python)
 │   ├── app/
 │   │   ├── agents/            # 智能体实现
