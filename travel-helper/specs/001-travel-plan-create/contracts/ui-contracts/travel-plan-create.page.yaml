@@ -80,14 +80,21 @@ components:
   form:
     container: preference-card
     fields:
-      - key: budget
-        label: 预算
-        type: number
+      - key: transportation
+        label: 交通方式
+        type: select
         required: true
-        default: 0.00
-        unit: 元
-        icon: currency
-        placeholder: 请输入预算金额
+        default: 飞机
+        icon: car
+        options:
+          - label: 飞机
+            value: airplane
+          - label: 高铁
+            value: train
+          - label: 自驾
+            value: driving
+          - label: 大巴
+            value: bus
       - key: accommodation_preference
         label: 住宿偏好
         type: select
