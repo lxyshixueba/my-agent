@@ -21,10 +21,12 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
+- **Web app (Constitution-aligned)**: `backend/app/`, `frontend/src/`
+  Backend: `backend/app/{agents,api,models,schemas,services,mcp,config.py}`
+  Frontend: `frontend/src/{views,components,services,types,router}`
 - **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- Paths shown below use web app conventions by default
 
 <!--
   ============================================================================
@@ -50,8 +52,10 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize [language] project with [framework] dependencies
-- [ ] T003 [P] Configure linting and formatting tools
+- [ ] T002 Initialize Python project with FastAPI + SQLAlchemy + LangChain + LangGraph dependencies
+- [ ] T003 [P] Configure Ruff (lint/format) + mypy (type check) in backend/pyproject.toml
+- [ ] T004 [P] Configure ESLint + Prettier in frontend/
+- [ ] T005 [P] Setup Alembic migration framework
 
 ---
 
@@ -63,12 +67,13 @@ description: "Task list template for feature implementation"
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
-- [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
-- [ ] T009 Setup environment configuration management
+- [ ] T006 Setup database schema with SQLAlchemy + Alembic
+- [ ] T007 [P] Implement authentication/authorization framework
+- [ ] T008 [P] Setup FastAPI routing and middleware structure
+- [ ] T009 [P] Configure pydantic-settings + python-dotenv environment management
+- [ ] T010 Create base models/entities that all stories depend on
+- [ ] T011 [P] Configure Loguru structured logging
+- [ ] T012 [P] Setup FastMCP protocol endpoints
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -157,6 +162,10 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
+- [ ] TXXX [P] 技术规范合规检查:
+  - 后端编码规范 (类型注解, 依赖注入, 自定义异常, 异步 SQLAlchemy, Loguru, LangGraph 工作流, LangChain Tool, LangSmith 追踪, FastMCP)
+  - 前端编码规范 (无未解释的 any, Composition API, PascalCase, services/ 层, scoped CSS)
+  - API 规范 (RESTful 路径, 统一错误格式, /api/v1/ 版本控制, 标准分页)
 
 ---
 

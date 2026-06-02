@@ -18,29 +18,52 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.12 (backend), TypeScript 5.7.3 (frontend)
 
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Primary Dependencies**: FastAPI 0.115.0, LangChain 0.3.0, LangGraph 0.2.0,
+LangSmith 0.1.0, FastMCP 2.0.0,
+Vue 3 3.5.13, Ant Design Vue 4.2.6
 
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Storage**: MySQL 8.0 (via SQLAlchemy 2.0.0 + PyMySQL 1.1.0, Alembic 1.14.0)
 
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
+**Testing**: pytest 8.0.0 (backend), Vitest or ESLint 9.0.0 (frontend)
 
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Lint/Type Check**: Ruff 0.8.0 + mypy 1.13.0 (backend),
+ESLint 9.0.0 + Prettier 3.4.0 (frontend)
 
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
+**Logging**: Loguru 0.7.0
 
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Target Platform**: Linux server (backend), Modern browsers (frontend)
 
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+**Project Type**: Web application (前后端分离)
 
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Performance Goals**: [domain-specific, e.g., 100 req/s, <200ms p95 API response]
+
+**Constraints**: [domain-specific, e.g., <500ms p95, mobile-friendly, offline-capable]
+
+**Scale/Scope**: [domain-specific, e.g., 1k users, 50 routes, 20 pages]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **P1 规范驱动开发**: 功能有对应的 spec.md
+- [ ] **P2 增量交付**: 用户故事可独立开发/测试/部署
+- [ ] **P3 测试纪律**: 测试先于实现编写（如规范要求）
+- [ ] **P4 代码质量**:
+  - 后端: 类型注解、Ruff/mypy 通过、依赖注入、自定义异常
+  - 前端: 无未解释的 any、Composition API、services/ 层封装
+- [ ] **P5 可观测性**: 结构化日志(Loguru)、错误上下文、无敏感信息
+- [ ] **P6 审查与问责**: 变更经过审查，复杂性有理由
+- [ ] **技术规范合规**:
+  - 后端编码规范: Pydantic Schema 区分、依赖注入、自定义异常、
+    异步 SQLAlchemy session, pydantic-settings 配置、Alembic 迁移、
+    LangGraph Agent 工作流、LangChain Tool 定义、LangSmith 追踪、
+    FastMCP 协议
+  - 前端编码规范: PascalCase 命名、scoped CSS、
+    类型定义与后端 Schema 一致
+  - API 规范: RESTful 路径、统一错误格式、/api/v1/ 版本控制、
+    标准分页参数
 
 ## Project Structure
 
@@ -65,39 +88,27 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+# Web application (前后端分离 — 本项目采用此结构)
 backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+├── app/
+│   ├── agents/            # 智能体实现
+│   ├── api/               # FastAPI 路由
+│   ├── models/            # SQLAlchemy 数据模型
+│   ├── schemas/           # Pydantic 请求/响应 Schema
+│   ├── services/          # 服务层（依赖注入）
+│   ├── mcp/               # FastMCP 协议端点
+│   └── config.py          # pydantic-settings 配置
+├── migrations/            # Alembic 迁移脚本
 └── tests/
 
 frontend/
 ├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
+│   ├── views/             # 页面组件 (PascalCase)
+│   ├── components/        # 通用组件
+│   ├── services/          # API 服务封装 (Axios)
+│   ├── types/             # TypeScript 类型定义
+│   └── router/            # Vue Router 路由配置
 └── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real

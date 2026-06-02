@@ -58,7 +58,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## 项目宪法
 
-宪法位于 `.specify/memory/constitution.md`（v1.4.0），定义 6 项原则：
+宪法位于 `.specify/memory/constitution.md`（v1.6.0），定义 6 项原则：
 规范驱动开发、增量交付、测试纪律、代码质量、可观测性、审查与问责。
 
 宪法具有最高优先级 — 与其他项目文档冲突时以宪法为准。
@@ -72,7 +72,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 | 工具 | 最低版本 |
 |------|---------|
-| Python | 3.10+ |
+| Python | 3.12+ |
 | Node.js | 16.0+ |
 | npm | 8.0+ |
 
@@ -83,6 +83,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 | 密钥 | 用途 | 注册地址 |
 |------|------|---------|
 | `LLM_API_KEY` | 大语言模型 API（OpenAI、DeepSeek 等） | 对应提供商控制台 |
+| `LANGCHAIN_API_KEY` | LangSmith 追踪与评估平台 | https://smith.langchain.com/ |
 | `AMAP_WEB_KEY` | 高德地图 Web 服务 | https://console.amap.com/ |
 | `UNSPLASH_ACCESS_KEY` | Unsplash 图片服务 | https://unsplash.com/developers |
 
