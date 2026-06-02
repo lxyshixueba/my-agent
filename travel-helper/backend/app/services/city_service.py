@@ -58,3 +58,7 @@ class CityService:
             城市是否存在
         """
         return any(c.name == name and c.code == code for c in self._cities)
+
+
+# 模块级单例，供路由直接导入
+city_service = CityService()
