@@ -1,0 +1,153 @@
+feature:
+  short_name: travel-plan-create
+
+page:
+  key: travel-plan-create
+  name: 旅行计划创建
+  type: page
+  route: /travel-plan/create
+
+layout:
+  regions:
+    - key: header
+      position: top
+      containers: [page-header]
+    - key: destination-date
+      position: main
+      containers: [destination-date-card]
+    - key: preference
+      position: main
+      containers: [preference-card]
+    - key: service
+      position: main
+      containers: [service-card]
+    - key: footer
+      position: bottom
+      containers: [submit-bar]
+
+containers:
+  - key: page-header
+    type: header
+    title: 智能旅行助手
+    subtitle: 基于用户个性化旅行规划，让每一次出行都满意至极
+  - key: destination-date-card
+    type: card
+    title: 目的地与日期
+  - key: preference-card
+    type: card
+    title: 偏好设置
+  - key: service-card
+    type: card
+    title: 服务要求
+  - key: submit-bar
+    type: footer
+
+components:
+
+  form:
+    container: destination-date-card
+    fields:
+      - key: destination_city
+        label: 目的地城市
+        type: text
+        required: true
+        placeholder: 请输入目的地城市
+        icon: map-pin
+      - key: start_date
+        label: 开始日期
+        type: date
+        required: true
+        placeholder: 选择出发日期
+        icon: calendar
+      - key: end_date
+        label: 结束日期
+        type: date
+        required: true
+        placeholder: 选择返回日期
+        icon: calendar
+      - key: travel_days
+        label: 出行天数
+        type: number
+        required: true
+        default: 1
+        unit: 天
+        control: stepper
+        validation:
+          - rule: min
+            value: 1
+            message: 出行天数至少为1天
+
+  form:
+    container: preference-card
+    fields:
+      - key: budget
+        label: 预算
+        type: number
+        required: true
+        default: 0.00
+        unit: 元
+        icon: currency
+        placeholder: 请输入预算金额
+      - key: accommodation_preference
+        label: 住宿偏好
+        type: select
+        required: false
+        default: 经济型酒店
+        icon: bed
+        options:
+          - label: 经济型酒店
+            value: budget_hotel
+          - label: 舒适型酒店
+            value: comfortable_hotel
+          - label: 高档型酒店
+            value: luxury_hotel
+          - label: 民宿
+            value: homestay
+      - key: travel_interests
+        label: 旅行偏好
+        type: checkbox_group
+        required: false
+        options:
+          - label: 景点观光
+            value: sightseeing
+          - label: 美食
+            value: food
+          - label: 自然风光
+            value: nature
+          - label: 历史文化
+            value: history
+          - label: 购物体验
+            value: shopping
+          - label: 探险
+            value: adventure
+          - label: 文化体验
+            value: culture
+          - label: 休闲娱乐
+            value: leisure
+
+  textarea:
+    container: service-card
+    fields:
+      - key: special_requirements
+        label: 服务要求
+        type: text
+        required: false
+        placeholder: 请输入您对我们的要求（例如：带小孩出行、需要无障碍设施、对海鲜过敏等）
+
+  actions:
+    container: submit-bar
+    buttons:
+      - key: submit_travel_plan
+        label: 开始规划我的旅行
+        intent: primary
+        action: submit_travel_plan
+
+states:
+  loading:
+    enabled: true
+    skeleton: true
+  empty:
+    message: ""
+  error:
+    message: 生成旅行计划失败，请稍后重试
+    retry: true
