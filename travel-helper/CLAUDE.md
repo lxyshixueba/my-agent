@@ -87,3 +87,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 | `UNSPLASH_ACCESS_KEY` | Unsplash 图片服务 | https://unsplash.com/developers |
 
 > `.env` 文件已加入 `.gitignore`，严禁提交到版本控制。
+
+<!-- SPECKIT START -->
+<!-- Active Feature Plan: specs/001-travel-plan-create/plan.md -->
+<!-- SPECKIT END -->
