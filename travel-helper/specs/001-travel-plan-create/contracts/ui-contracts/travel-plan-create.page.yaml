@@ -106,7 +106,7 @@ components:
             value: budget_hotel
           - label: 舒适型酒店
             value: comfortable_hotel
-          - label: 高档型酒店
+          - label: 豪华酒店
             value: luxury_hotel
           - label: 民宿
             value: homestay
