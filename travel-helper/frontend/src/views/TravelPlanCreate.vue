@@ -1,175 +1,256 @@
 <template>
   <div class="travel-plan-create">
     <header class="page-header">
-      <h1>创建旅行计划</h1>
-      <p class="subtitle">填写旅行信息，AI 为你定制专属行程</p>
+      <span class="header-icon">✈️</span>
+      <h1>智能旅行助手</h1>
+      <p class="subtitle">基于 AI 个性化旅行规划，让每一次出行都完美无瑕</p>
     </header>
 
-    <form @submit.prevent="onSubmit" class="form-container">
-      <!-- 目的地城市 -->
-      <div class="form-section">
-        <h3>目的地</h3>
-        <CitySearch
-          placeholder="搜索目的地城市"
-          @select="onCitySelect"
-        />
-        <p v-if="errors.destination" class="error-msg">{{ errors.destination }}</p>
-      </div>
+    <el-card class="form-card" shadow="always">
+      <el-form :model="form" label-position="top">
+        <el-row :gutter="16">
+          <el-col :span="6">
+            <el-form-item label="目的地城市">
+              <el-autocomplete
+                v-model="cityQuery"
+                :fetch-suggestions="fetchCities"
+                placeholder="请输入城市"
+                @select="selectCity"
+                value-key="name"
+              >
+                <template #default="{ item }">
+                  <div class="city-suggestion">
+                    <span class="city-name">{{ item.name }}</span>
+                    <span class="city-province">{{ item.province }}</span>
+                  </div>
+                </template>
+              </el-autocomplete>
+            </el-form-item>
+          </el-col>
 
-      <!-- 日期选择 -->
-      <div class="form-section">
-        <h3>出行日期</h3>
-        <DatePicker
-          v-model:startDate="form.start_date"
-          v-model:endDate="form.end_date"
-          v-model:days="form.days"
-        />
-        <p v-if="errors.dates" class="error-msg">{{ errors.dates }}</p>
-      </div>
+          <el-col :span="5">
+            <el-form-item label="开始日期">
+              <el-date-picker
+                v-model="form.start_date"
+                type="date"
+                placeholder="选择日期"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
 
-      <!-- 交通方式 -->
-      <div class="form-section">
-        <h3>交通方式</h3>
-        <TransportSelector v-model="form.transport_mode" />
-        <p v-if="errors.transport" class="error-msg">{{ errors.transport }}</p>
-      </div>
+          <el-col :span="5">
+            <el-form-item label="结束日期">
+              <el-date-picker
+                v-model="form.end_date"
+                type="date"
+                placeholder="选择日期"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
 
-      <!-- 住宿偏好 -->
-      <div class="form-section">
-        <h3>住宿偏好</h3>
-        <div class="accommodation-options">
-          <div
-            v-for="opt in accommodationOptions"
-            :key="opt.value"
-            :class="['accom-option', { active: form.accommodation === opt.value }]"
-            @click="form.accommodation = opt.value"
-          >
-            <span class="accom-icon">{{ opt.icon }}</span>
-            <span class="accom-label">{{ opt.label }}</span>
-          </div>
-        </div>
-      </div>
+          <el-col :span="4">
+            <el-form-item label="旅行天数">
+              <div class="days-control">
+                <span class="days-value">{{ form.days }}</span>
+                <span class="days-unit">天</span>
+              </div>
+            </el-form-item>
+          </el-col>
 
-      <!-- 旅行偏好标签 -->
-      <div class="form-section">
-        <h3>旅行偏好 <span class="optional">(可选)</span></h3>
-        <PreferenceSelector v-model="form.preferences" />
-      </div>
+          <el-col :span="4" class="submit-col">
+            <el-button
+              type="primary"
+              size="large"
+              :loading="isGenerating"
+              class="submit-btn"
+              @click="onSubmit"
+            >
+              {{ isGenerating ? '正在生成...' : '开始规划' }}
+            </el-button>
+          </el-col>
+        </el-row>
 
-      <!-- 特殊服务要求 -->
-      <div class="form-section">
-        <h3>特殊服务要求 <span class="optional">(可选)</span></h3>
-        <textarea
-          v-model="form.special_requirements"
-          placeholder="如：带老人出行，行程不宜太紧凑..."
-          maxlength="500"
-          rows="3"
-          class="special-req-input"
-        ></textarea>
-        <p class="char-count">{{ (form.special_requirements || '').length }}/500</p>
-      </div>
+        <el-divider content-position="left">
+          <el-icon><Setting /></el-icon>
+          偏好设置
+        </el-divider>
 
-      <!-- 提交按钮 -->
-      <button
-        type="submit"
-        class="submit-btn"
-        :disabled="isGenerating"
-      >
-        <span v-if="isGenerating" class="spinner"></span>
-        {{ isGenerating ? '正在生成旅行计划...' : '生成旅行计划' }}
-      </button>
-    </form>
+        <el-row :gutter="24">
+          <el-col :span="8">
+            <el-form-item label="交通方式">
+              <el-select v-model="form.transport_mode" placeholder="请选择交通方式" style="width: 100%">
+                <el-option
+                  v-for="opt in transportOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
 
-    <!-- 错误提示 -->
-    <div v-if="submitError" class="error-banner">
-      {{ submitError }}
-      <button @click="onSubmit" class="retry-btn">重试</button>
-    </div>
+          <el-col :span="8">
+            <el-form-item label="住宿偏好">
+              <el-select v-model="form.accommodation" placeholder="请选择住宿偏好" style="width: 100%">
+                <el-option
+                  v-for="opt in accommodationOptions"
+                  :key="opt.value"
+                  :label="opt.label"
+                  :value="opt.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="旅行偏好">
+              <el-checkbox-group v-model="form.preferences">
+                <el-checkbox v-for="tag in allTags" :key="tag.value" :value="tag.value">
+                  {{ tag.label }}
+                </el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-divider content-position="left">
+          <el-icon><Document /></el-icon>
+          服务要求
+        </el-divider>
+
+        <el-form-item>
+          <el-input
+            v-model="form.special_requirements"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入您的特殊要求，例如：带小孩出行，需要儿童友好设施..."
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card v-if="isGenerating" class="progress-card" shadow="always">
+      <el-progress
+        :percentage="progress"
+        :stroke-width="10"
+        striped
+        striped-flow
+      />
+      <p class="progress-hint">
+        <span>💡</span>
+        正在规划路线...
+      </p>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import CitySearch from '@/components/CitySearch.vue'
-import DatePicker from '@/components/DatePicker.vue'
-import TransportSelector from '@/components/TransportSelector.vue'
-import PreferenceSelector from '@/components/PreferenceSelector.vue'
-import { generateTravelPlan } from '@/services/travelPlanApi'
-import type { City, TravelPlanRequest, PreferenceTag } from '@/types/travelPlan'
+import { reactive, ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Setting, Document } from '@element-plus/icons-vue'
+import { PREFERENCE_CONFIG, type PreferenceTag, type City } from '@/types/travelPlan'
+import { generateTravelPlan, searchCities as apiSearchCities } from '@/services/travelPlanApi'
 
 const form = reactive({
-  destination: null as CityRef | null,
+  destination: null as City | null,
   start_date: '',
   end_date: '',
-  days: 0,
-  transport_mode: null as string | null,
-  accommodation: null as string | null,
+  days: 1,
+  transport_mode: '',
+  accommodation: '',
   preferences: [] as PreferenceTag[],
   special_requirements: '',
 })
 
-const errors = reactive({
-  destination: '',
-  dates: '',
-  transport: '',
+const cityQuery = ref('')
+
+const fetchCities = async (queryString: string, cb: (results: any[]) => void) => {
+  if (queryString.length < 1) {
+    cb([])
+    return
+  }
+  try {
+    const results = await apiSearchCities(queryString)
+    cb(results)
+  } catch {
+    cb([])
+  }
+}
+
+const selectCity = (city: City) => {
+  form.destination = city
+}
+
+// 日期联动：自动计算天数
+watch([() => form.start_date, () => form.end_date], () => {
+  if (form.start_date && form.end_date) {
+    const s = new Date(form.start_date)
+    const e = new Date(form.end_date)
+    const diff = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    form.days = diff > 0 ? diff : 0
+  }
 })
 
-const isGenerating = ref(false)
-const submitError = ref('')
-
-const accommodationOptions = [
-  { value: 'economy', label: '经济型', icon: '💰' },
-  { value: 'comfort', label: '舒适型', icon: '🏨' },
-  { value: 'premium', label: '高档型', icon: '⭐' },
-  { value: 'luxury', label: '豪华型', icon: '👑' },
-  { value: 'homestay', label: '民宿', icon: '🏡' },
+const transportOptions = [
+  { value: 'flight', label: '✈️ 飞机' },
+  { value: 'high_speed_rail', label: '🚄 高铁' },
+  { value: 'self_driving', label: '🚗 自驾' },
+  { value: 'bus', label: '🚌 大巴' },
 ]
 
-const onCitySelect = (city: City) => {
-  form.destination = { name: city.name, code: city.code }
-  errors.destination = ''
-}
+const accommodationOptions = [
+  { value: 'economy', label: '经济型' },
+  { value: 'comfort', label: '舒适型' },
+  { value: 'premium', label: '高档型' },
+  { value: 'luxury', label: '豪华型' },
+  { value: 'homestay', label: '民宿' },
+]
 
-const validate = (): boolean => {
-  let valid = true
+const allTags = Object.entries(PREFERENCE_CONFIG).map(([value, config]) => ({
+  value: value as PreferenceTag,
+  ...config,
+}))
 
-  if (!form.destination) {
-    errors.destination = '请选择目的地城市'
-    valid = false
-  } else {
-    errors.destination = ''
-  }
-
-  if (!form.start_date || !form.end_date) {
-    errors.dates = '请选择出行日期'
-    valid = false
-  } else {
-    errors.dates = ''
-  }
-
-  if (!form.transport_mode) {
-    errors.transport = '请选择交通方式'
-    valid = false
-  } else {
-    errors.transport = ''
-  }
-
-  if (!form.accommodation) {
-    // 住宿偏好在规范中为必填
-  }
-
-  return valid
-}
+const isGenerating = ref(false)
+const progress = ref(0)
+let progressTimer: ReturnType<typeof setInterval> | null = null
 
 const onSubmit = async () => {
-  if (!validate()) return
+  if (!form.destination) {
+    ElMessage.warning('请选择目的地城市')
+    return
+  }
+  if (!form.start_date || !form.end_date) {
+    ElMessage.warning('请选择出行日期')
+    return
+  }
+  if (!form.transport_mode) {
+    ElMessage.warning('请选择交通方式')
+    return
+  }
+  if (!form.accommodation) {
+    ElMessage.warning('请选择住宿偏好')
+    return
+  }
 
   isGenerating.value = true
-  submitError.value = ''
+  progress.value = 0
+
+  progressTimer = setInterval(() => {
+    if (progress.value < 90) {
+      progress.value += Math.floor(Math.random() * 10) + 1
+    }
+  }, 500)
 
   try {
-    const request: TravelPlanRequest = {
-      destination: form.destination!,
+    const request = {
+      destination: { name: form.destination.name, code: form.destination.code },
       start_date: form.start_date,
       end_date: form.end_date,
       transport_mode: form.transport_mode as any,
@@ -179,193 +260,128 @@ const onSubmit = async () => {
     }
 
     const response = await generateTravelPlan(request)
-    // 计划生成成功 — 后续迭代中将跳转到结果页面
+    progress.value = 100
     console.log('旅行计划已生成:', response)
-    alert('旅行计划生成成功！')
+    ElMessage.success('旅行计划生成成功！')
   } catch (err: any) {
-    submitError.value = err.message || '生成失败，请稍后重试'
+    ElMessage.error(err.message || '生成失败，请稍后重试')
   } finally {
     isGenerating.value = false
+    if (progressTimer) clearInterval(progressTimer)
   }
 }
 </script>
 
 <style scoped>
 .travel-plan-create {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 16px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+.header-icon {
+  font-size: 40px;
 }
 
 .page-header h1 {
   font-size: 28px;
-  color: #333;
-  margin: 0 0 8px;
+  color: #fff;
+  margin: 8px 0;
+  font-weight: 700;
 }
 
 .subtitle {
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
   margin: 0;
 }
 
-.form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-section h3 {
-  font-size: 16px;
-  color: #333;
-  margin: 0;
-}
-
-.optional {
-  font-size: 12px;
-  color: #999;
-  font-weight: normal;
-}
-
-.special-req-input {
+.form-card {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  resize: vertical;
-  outline: none;
-  font-family: inherit;
-  box-sizing: border-box;
+  max-width: 1100px;
+  border-radius: 16px;
 }
 
-.special-req-input:focus {
-  border-color: #4a90d9;
-  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.1);
+.form-card :deep(.el-card__body) {
+  padding: 24px;
 }
 
-.char-count {
-  text-align: right;
-  font-size: 12px;
-  color: #999;
-  margin: 0;
+.submit-col {
+  display: flex;
+  align-items: flex-end;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 14px;
-  background: #4a90d9;
-  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+}
+
+.days-control {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: #3a7bc8;
-}
-
-.submit-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.error-msg {
-  color: #e74c3c;
-  font-size: 13px;
-  margin: 0;
-}
-
-.error-banner {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: #fdf0ef;
-  border: 1px solid #e74c3c;
-  border-radius: 8px;
-  color: #c0392b;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.retry-btn {
-  padding: 6px 16px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.accommodation-options {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.accom-option {
-  flex: 1;
-  min-width: 72px;
-  padding: 12px 8px;
-  border: 2px solid #eee;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: baseline;
   gap: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.accom-option:hover {
-  border-color: #4a90d9;
+.days-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #667eea;
 }
 
-.accom-option.active {
-  border-color: #4a90d9;
-  background: #e8f0fe;
+.days-unit {
+  font-size: 14px;
+  color: #666;
 }
 
-.accom-icon {
-  font-size: 20px;
+.el-divider {
+  margin: 20px 0 16px;
 }
 
-.accom-label {
-  font-size: 12px;
+.el-divider :deep(.el-divider__text) {
+  font-weight: 600;
   color: #333;
+  font-size: 15px;
+}
+
+.city-suggestion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.city-name {
+  font-weight: 500;
+}
+
+.city-province {
+  color: #999;
+  font-size: 12px;
+}
+
+.progress-card {
+  width: 100%;
+  max-width: 1100px;
+  margin-top: 16px;
+  border-radius: 12px;
+}
+
+.progress-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: #666;
+  font-size: 13px;
 }
 </style>
