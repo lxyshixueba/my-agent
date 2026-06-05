@@ -1,0 +1,58 @@
+feature:
+  short_name: travel-plan-detail
+
+page:
+  key: travel-plan-replan-confirm
+  name: 确认重新规划
+  type: modal
+  route: unknown
+
+layout:
+  regions:
+    - key: header
+      position: top
+      containers: [modal-header]
+    - key: content
+      position: main
+      containers: [confirm-content]
+    - key: footer
+      position: bottom
+      containers: [modal-actions]
+
+containers:
+  - key: modal-header
+    type: header
+    title: 确认重新规划
+  - key: confirm-content
+    type: card
+  - key: modal-actions
+    type: footer
+
+components:
+
+  confirm_message:
+    container: confirm-content
+    message: 重新规划将覆盖当前的行程安排，确定要重新生成旅行计划吗？
+    warning: true
+
+  actions:
+    container: modal-actions
+    buttons:
+      - key: confirm
+        label: 确认重新规划
+        intent: primary
+        action: confirm_replan
+      - key: cancel
+        label: 取消
+        intent: default
+        action: cancel_replan
+
+states:
+  loading:
+    enabled: true
+    skeleton: false
+  empty:
+    message: ""
+  error:
+    message: 重新规划失败
+    retry: true

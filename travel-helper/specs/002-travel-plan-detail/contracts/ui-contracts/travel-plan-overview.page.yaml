@@ -1,0 +1,171 @@
+feature:
+  short_name: travel-plan-detail
+
+page:
+  key: travel-plan-overview
+  name: 旅行计划概览
+  type: page
+  route: /travel-plans/:id/overview
+
+layout:
+  regions:
+    - key: sidebar
+      position: left
+      containers: [side-nav]
+    - key: toolbar
+      position: top-right
+      containers: [action-bar]
+    - key: content
+      position: main
+      containers:
+        - plan-info-card
+        - budget-card
+        - total-cost-card
+        - map-card
+        - daily-schedule-card
+
+containers:
+  - key: side-nav
+    type: nav
+  - key: action-bar
+    type: toolbar
+  - key: plan-info-card
+    type: card
+  - key: budget-card
+    type: card
+  - key: total-cost-card
+    type: card
+  - key: map-card
+    type: card
+  - key: daily-schedule-card
+    type: card
+
+components:
+
+  side_nav:
+    container: side-nav
+    items:
+      - key: overview
+        label: 行程概览
+        active: true
+      - key: attractions
+        label: 景点详情
+        active: false
+      - key: accommodation
+        label: 住宿安排
+        active: false
+      - key: transportation
+        label: 交通方案
+        active: false
+
+  toolbar:
+    container: action-bar
+    buttons:
+      - key: replan
+        label: 重新规划
+        intent: default
+        visibility: public
+        action: replan_trip
+      - key: export
+        label: 导出行程
+        intent: default
+        visibility: public
+        action: export_trip
+
+  plan_info:
+    container: plan-info-card
+    title: 北京旅行计划
+    fields:
+      - key: date_range
+        label: 日期
+        type: text
+        example: 2025-11-10 至 2025-11-25
+      - key: destination
+        label: 目的地
+        type: text
+        example: 北京
+      - key: description
+        label: 简介
+        type: text
+        example: 旅行计划包含15天行程，分为3个阶段，每个阶段安排不同的行程。本旅行规划系统将帮助出行方案实现。
+
+  budget_breakdown:
+    container: budget-card
+    title: 预算明细
+    items:
+      - key: attraction_tickets
+        label: 景点门票
+        amount: 1130
+        currency: CNY
+      - key: hotel_accommodation
+        label: 酒店住宿
+        amount: 1200
+        currency: CNY
+      - key: dining_transport
+        label: 餐饮交通
+        amount: 730
+        currency: CNY
+      - key: dining_food
+        label: 餐饮美食
+        amount: 300
+        currency: CNY
+
+  total_cost:
+    container: total-cost-card
+    title: 预估总费用
+    amount: 2190
+    currency: CNY
+
+  map:
+    container: map-card
+    title: 北京地图
+    type: map
+    features:
+      - show_attraction_markers: true
+      - show_accommodation_markers: true
+      - show_route_lines: true
+
+  daily_schedule_list:
+    container: daily-schedule-card
+    title: 每日行程
+    items:
+      - key: day-1
+        label: 第1天
+        date: 2025-11-10
+        clickable: true
+        action: view_day_detail
+      - key: day-2
+        label: 第2天
+        date: 2025-11-11
+        clickable: true
+        action: view_day_detail
+      - key: day-3
+        label: 第3天
+        date: 2025-11-12
+        clickable: true
+        action: view_day_detail
+
+overlays:
+  - key: travel-plan-edit-day
+    type: drawer
+    trigger:
+      from: daily_schedule_list
+      action: view_day_detail
+    title: 编辑行程
+
+  - key: travel-plan-replan-confirm
+    type: modal
+    trigger:
+      from: toolbar
+      action: replan_trip
+    title: 确认重新规划
+
+states:
+  loading:
+    enabled: true
+    skeleton: true
+  empty:
+    message: 暂无旅行计划
+  error:
+    message: 加载旅行计划失败
+    retry: true

@@ -6,8 +6,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
-from app.config import settings
+from app.config import settings, apply_langsmith_settings
 
 logger = logging.getLogger("travel-helper")
 
@@ -16,6 +17,8 @@ logger = logging.getLogger("travel-helper")
 async def lifespan(app: FastAPI):
     """应用生命周期管理."""
     logger.info(f"应用启动: {settings.app_env} 环境")
+    apply_langsmith_settings()
+    logger.info("LangSmith 配置已加载")
     yield
     logger.info("应用关闭")
 
@@ -38,24 +41,63 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # 请求日志中间件
+    # 请求日志中间件（结构化日志：请求 ID、时间戳、响应状态、耗时）
     @app.middleware("http")
     async def log_requests(request: Request, call_next):
+        import time
         request_id = str(uuid.uuid4())[:8]
         request.state.request_id = request_id
-        logger.info(f"请求开始: {request.method} {request.url.path} [req:{request_id}]")
+        start_time = time.time()
+        timestamp = __import__("datetime").datetime.now().isoformat()
+
+        logger.info(
+            f"[{timestamp}] 请求开始: {request.method} {request.url.path} "
+            f"[req:{request_id}] client={request.client.host if request.client else 'unknown'}"
+        )
+
         response = await call_next(request)
-        logger.info(f"请求完成: {request.method} {request.url.path} -> {response.status_code} [req:{request_id}]")
+
+        duration_ms = (time.time() - start_time) * 1000
+        logger.info(
+            f"[{timestamp}] 请求完成: {request.method} {request.url.path} "
+            f"-> {response.status_code} [req:{request_id}] duration={duration_ms:.0f}ms"
+        )
+
         return response
+
+    # 请求校验错误统一格式
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        request_id = getattr(request.state, "request_id", "unknown")
+        timestamp = __import__("datetime").datetime.now().isoformat()
+        errors_summary = []
+        for err in exc.errors():
+            field = ".".join(str(loc) for loc in err.get("loc", []))
+            errors_summary.append(f"{field}: {err.get('msg', '')}")
+        detail = "; ".join(errors_summary)
+        logger.warning(f"[{timestamp}] 请求校验失败 [req:{request_id}]: {detail}")
+        return JSONResponse(
+            status_code=422,
+            content={"detail": detail},
+        )
 
     # 统一错误处理
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
+        import traceback
         request_id = getattr(request.state, "request_id", "unknown")
-        logger.error(f"未处理异常 [req:{request_id}]: {exc}")
+        timestamp = __import__("datetime").datetime.now().isoformat()
+        logger.error(
+            f"[{timestamp}] 未处理异常 [req:{request_id}] "
+            f"{request.method} {request.url.path}: {exc}\n"
+            f"Traceback: {traceback.format_exc()}"
+        )
         return JSONResponse(
             status_code=500,
-            content={"request_id": request_id, "error": "服务器内部错误，请稍后重试"},
+            content={
+                "detail": "服务器内部错误，请稍后重试",
+                "request_id": request_id,
+            },
         )
 
     # 注册路由

@@ -1,0 +1,27 @@
+feature:
+  short_name: travel-plan-detail
+  title: 旅行计划详情
+
+contracts:
+  pages:
+    - page_key: travel-plan-overview
+      type: page
+      file: travel-plan-overview.page.yaml
+    - page_key: travel-plan-day-detail
+      type: page
+      file: travel-plan-day-detail.page.yaml
+  overlays:
+    - overlay_key: travel-plan-edit-day
+      type: drawer
+      file: travel-plan-edit-day.drawer.yaml
+    - overlay_key: travel-plan-replan-confirm
+      type: modal
+      file: travel-plan-replan-confirm.modal.yaml
+
+conventions:
+  page_key_pattern: "<entity>-<action>"
+  file_naming:
+    page: "<page-key>.page.yaml"
+    modal: "<overlay-key>.modal.yaml"
+    drawer: "<overlay-key>.drawer.yaml"
+    popover: "<overlay-key>.popover.yaml"

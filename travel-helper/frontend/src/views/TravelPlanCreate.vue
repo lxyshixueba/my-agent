@@ -152,10 +152,14 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Setting, Document } from '@element-plus/icons-vue'
 import { PREFERENCE_CONFIG, type PreferenceTag, type City } from '@/types/travelPlan'
 import { generateTravelPlan, searchCities as apiSearchCities } from '@/services/travelPlanApi'
+import { savePlanId } from '@/services/storageService'
+
+const router = useRouter()
 
 const form = reactive({
   destination: null as City | null,
@@ -263,6 +267,11 @@ const onSubmit = async () => {
     progress.value = 100
     console.log('旅行计划已生成:', response)
     ElMessage.success('旅行计划生成成功！')
+
+    // 存储计划 ID 并跳转至概览页
+    const planId = response.request_id
+    savePlanId(planId)
+    router.push({ name: 'TravelPlanOverview', params: { id: planId } })
   } catch (err: any) {
     ElMessage.error(err.message || '生成失败，请稍后重试')
   } finally {

@@ -11,12 +11,16 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "element-plus": "^2.14.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "vue": "^3.5.1",
-    "vue-router": "^4.4.3"
+    "vue-router": "^4.4.3",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.6.0",

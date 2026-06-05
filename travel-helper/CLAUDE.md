@@ -58,8 +58,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## 项目宪法
 
-宪法位于 `.specify/memory/constitution.md`（v1.4.0），定义 6 项原则：
-规范驱动开发、增量交付、测试纪律、代码质量、可观测性、审查与问责。
+宪法位于 `.specify/memory/constitution.md`（v1.6.0），定义 6 项原则 + Speckit 流程执行纪律：
+规范驱动开发、增量交付、测试纪律、代码质量、可观测性、审查与问责、**Speckit 流程执行纪律**（脚本缺失/命令失败时必须立即提示用户并中断流程）。
 
 宪法具有最高优先级 — 与其他项目文档冲突时以宪法为准。
 
@@ -89,5 +89,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 > `.env` 文件已加入 `.gitignore`，严禁提交到版本控制。
 
 <!-- SPECKIT START -->
-<!-- Active Feature Plan: specs/001-travel-plan-create/plan.md -->
+
+## Active Technologies
+
+- Python 3.10+ + FastAPI + Pydantic (001-travel-plan-create)
+- Vue 3 + TypeScript + Element Plus 2.x + Axios (001-travel-plan-create)
+- **LangChain / LangGraph / LangSmith** (大模型交互技术栈，替代 OpenAI SDK) (001-travel-plan-create)
+- 浏览器 localStorage (002-travel-plan-detail)
+- 高德地图 MCP 服务 (POI 搜索/天气查询/路线规划 API, JSON 格式) (002-travel-plan-detail)
+- html2canvas + jsPDF (前端导出) (002-travel-plan-detail)
+- vuedraggable + Sortable.js (拖拽排序) (002-travel-plan-detail)
+- @amap/amap-jsapi-loader (高德地图前端嵌入) (002-travel-plan-detail)
+
+## Recent Changes
+
+- 002-travel-plan-detail: Added 旅行计划详情查看与编辑 (概览页/详情页/编辑/导出/重新规划)
+- 001-travel-plan-create: Added 旅行计划创建功能 (表单/城市搜索/偏好选择/LLM 行程生成, LangChain/LangGraph/LangSmith 技术栈)
+
+## Project Structure
+
+```
+backend/
+├── app/
+│   ├── agents/
+│   ├── api/
+│   ├── models/
+│   ├── services/
+│   └── config.py
+└── requirements.txt
+
+frontend/
+── src/
+│   ├── views/
+│   ├── components/
+│   ├── services/
+│   ├── types/
+│   └── router/
+└── package.json
+```
+
+**Last updated**: 2026-06-05
+
 <!-- SPECKIT END -->

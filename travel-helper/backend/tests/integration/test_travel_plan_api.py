@@ -65,8 +65,8 @@ class TestTravelPlanGeneration:
         response = client.post("/api/v1/travel-plans/generate", json=body)
         assert response.status_code == 422
 
-    def test_city_not_found_returns_404(self, client):
-        """城市不存在返回 404."""
+    def test_city_not_found_returns_400(self, client):
+        """城市不存在返回 400."""
         body = {
             "destination": {"name": "不存在的城市xyz", "code": "XYZ"},
             "start_date": (date.today() + timedelta(days=10)).isoformat(),
@@ -75,4 +75,6 @@ class TestTravelPlanGeneration:
             "accommodation": "economy",
         }
         response = client.post("/api/v1/travel-plans/generate", json=body)
-        assert response.status_code == 404
+        assert response.status_code == 400  # 城市校验失败应返回 400
+        data = response.json()
+        assert "detail" in data

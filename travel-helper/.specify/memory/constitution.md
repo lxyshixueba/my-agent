@@ -1,16 +1,15 @@
 <!--
   Sync Impact Report
   ==================
-  Version change: 1.4.0 → 1.5.0
+  Version change: 1.5.0 → 1.6.0
   Modified principles: N/A
   Added sections:
-    - 项目结构 → 新增"技术栈"表格，记录前后端技术选型
+    - Speckit 流程执行纪律 → 新增脚本缺失/执行失败时必须立即提示用户并中断流程
   Removed sections: None
-  Templates requiring updates:
-    - .specify/templates/plan-template.md       ✅ already aligned
+  Templates requiring updates: None
   Runtime guidance requiring updates:
-    - CLAUDE.md                                 ✅ update env requirements section
-  Rationale for v1.5.0: Record frontend UI framework (Element Plus 2.x) as project-level technology decision.
+    - CLAUDE.md                                 ✅ reference new section
+  Rationale for v1.6.0: Ensure Speckit execution errors are surfaced immediately to prevent downstream artifacts based on incomplete context.
 -->
 
 # Travel Helper 宪法
@@ -70,8 +69,9 @@
 - 错误 MUST 包含足够的上下文信息以便排查
 - 日志 MUST NOT 包含敏感信息（API 密钥、用户凭证等）
 - 关键业务操作 MUST 有可追踪的日志链路
+- **大模型调用 MUST 通过 LangSmith 进行追踪**（包含 Prompt 版本、模型输入输出、Token 消耗、延迟）
 
-**理由**：可观测性是生产环境问题排查和性能监控的基础保障。
+**理由**：可观测性是生产环境问题排查和性能监控的基础保障。LangSmith 为 LLM 调用提供标准化追踪能力，满足大模型场景下的调试需求。
 
 ### VI. 审查与问责
 
@@ -118,6 +118,7 @@
 | 层级 | 技术选型 |
 |------|---------|
 | 后端 | Python 3.10+ / FastAPI / Pydantic |
+| 大模型 | **LangChain** (Agent/Tool) / **LangGraph** (StateGraph/多智能体编排) / **LangSmith** (Tracing/调试) |
 | 前端 | Vue 3 / TypeScript / **Element Plus 2.x** (UI 组件库) / Axios |
 | 构建 | Vite 5 / vue-tsc |
 | 测试 | pytest (后端) / Vitest (前端) |
@@ -129,6 +130,14 @@
 - 智能体（agents）MUST 通过服务层访问数据，MUST NOT 直接操作数据模型
 - 前端表单控件优先使用 Element Plus 内建组件，MUST NOT 重复实现已有组件功能
 - 新增目录或层级变更 MUST 在实现计划中说明理由
+
+## Speckit 流程执行纪律
+
+- Speckit 各阶段（specify / plan / tasks / implement）在执行过程中若出现 **脚本缺失、命令执行失败、环境异常** 等错误（例如 `No such file or directory`、`command not found`），MUST **立即中断当前流程并明确告知用户**，不得静默跳过或强行继续
+- 报错信息 MUST 包含：失败的脚本路径、错误类型、建议的修复方向
+- 用户确认处理方案后，方可继续执行后续步骤
+
+**理由**：及时暴露环境问题，避免因缺失依赖或脚本导致后续产出（plan / tasks / 代码）基于不完整上下文生成，造成更大返工。
 
 ## 安全与环境
 
@@ -154,6 +163,7 @@
 | `LLM_API_KEY` | 大语言模型 API（OpenAI、DeepSeek 等） |
 | `AMAP_WEB_KEY` | 高德地图 Web 服务 |
 | `UNSPLASH_ACCESS_KEY` | Unsplash 图片服务 |
+| `LANGSMITH_API_KEY` | LangSmith 追踪服务 |
 
 ## 治理
 
@@ -182,4 +192,4 @@
 - Speckit 流程的 Constitution Check 门禁 MUST 在设计和实现阶段通过
 - 违反宪法的变更 MUST 在复杂性追踪表中记录理由
 
-**版本**: 1.5.0 | **批准日期**: 2026-06-02 | **最近修订**: 2026-06-05
+**版本**: 1.7.0 | **批准日期**: 2026-06-05 | **最近修订**: 2026-06-05

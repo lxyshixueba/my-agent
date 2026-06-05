@@ -1,0 +1,111 @@
+feature:
+  short_name: travel-plan-detail
+
+page:
+  key: travel-plan-edit-day
+  name: 编辑当日行程
+  type: drawer
+  route: unknown
+
+layout:
+  regions:
+    - key: header
+      position: top
+      containers: [drawer-header]
+    - key: content
+      position: main
+      containers: [edit-form-card]
+    - key: footer
+      position: bottom
+      containers: [drawer-actions]
+
+containers:
+  - key: drawer-header
+    type: header
+    title: 编辑当日行程
+  - key: edit-form-card
+    type: form
+  - key: drawer-actions
+    type: footer
+
+components:
+
+  form:
+    container: edit-form-card
+    sections:
+      - key: schedule
+        title: 日程安排
+        fields:
+          - key: time_slots
+            label: 时间段安排
+            type: custom
+            required: true
+            description: 添加/修改/删除当日各时间段的活动安排
+      - key: attractions
+        title: 景点安排
+        fields:
+          - key: attractions
+            label: 景点列表
+            type: custom
+            required: true
+            description: 添加/修改/删除当日游览的景点
+      - key: accommodation
+        title: 住宿安排
+        fields:
+          - key: hotel_name
+            label: 酒店名称
+            type: text
+            required: false
+          - key: room_type
+            label: 房型
+            type: text
+            required: false
+          - key: address
+            label: 地址
+            type: text
+            required: false
+      - key: dining
+        title: 餐饮安排
+        fields:
+          - key: breakfast
+            label: 早餐
+            type: text
+            required: false
+          - key: lunch
+            label: 午餐
+            type: text
+            required: false
+          - key: dinner
+            label: 晚餐
+            type: text
+            required: false
+      - key: transportation
+        title: 交通安排
+        fields:
+          - key: transportation_items
+            label: 交通方式
+            type: custom
+            required: false
+            description: 添加/修改当日交通信息
+
+  actions:
+    container: drawer-actions
+    buttons:
+      - key: save
+        label: 保存
+        intent: primary
+        action: save_day_edit
+      - key: cancel
+        label: 取消
+        intent: default
+        action: cancel_edit
+
+states:
+  loading:
+    enabled: true
+    skeleton: false
+  empty:
+    message: ""
+  error:
+    message: 保存失败，请重试
+    retry: true

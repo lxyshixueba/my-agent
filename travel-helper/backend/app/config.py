@@ -1,5 +1,6 @@
 """环境配置管理."""
 
+import os
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -28,9 +29,31 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
     llm_model: str = "gpt-4o"
 
+    # LangSmith 配置
+    langsmith_api_key: str = ""
+    langsmith_tracing: bool = True  # 默认开启追踪，便于调试
+    langsmith_project: str = "travel-helper"
+
     class Config:
         env_file = ".env"
         case_sensitive = False
 
 
 settings = Settings()
+
+
+def apply_langsmith_settings() -> None:
+    """应用 LangSmith 环境变量配置.
+
+    在应用启动时调用，确保 LangGraph/LangChain 能够使用 LangSmith 进行追踪。
+    """
+    if settings.langsmith_tracing and settings.langsmith_api_key:
+        os.environ["LANGSMITH_TRACING"] = "true"
+        os.environ["LANGSMITH_API_KEY"] = settings.langsmith_api_key
+        os.environ["LANGSMITH_PROJECT"] = settings.langsmith_project
+    elif settings.langsmith_tracing:
+        # 追踪开启但未配置 API Key，记录警告
+        import logging
+
+        logger = logging.getLogger("travel-helper")
+        logger.warning("LangSmith 追踪已开启，但 LANGSMITH_API_KEY 未配置，追踪功能将不可用")
