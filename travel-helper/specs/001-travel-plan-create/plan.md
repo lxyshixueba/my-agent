@@ -16,7 +16,7 @@
 
 **Primary Dependencies**: 
 - 后端: FastAPI (API 框架), pydantic (数据校验), anthropic/openai SDK (LLM 调用), python-dotenv (环境变量)
-- 前端: Vue 3 或 React (待确认), Axios (HTTP 客户端)
+- 前端: Vue 3 (前端框架), **Element Plus 2.x (UI 组件库)**, @element-plus/icons-vue (图标库), Axios (HTTP 客户端), date-fns (日期处理), vue-router (路由)
 
 **Storage**: 本功能不持久化存储旅行计划数据，LLM 生成的结果通过 API 响应直接返回给前端。城市数据可存储为静态 JSON 文件。
 
@@ -122,7 +122,7 @@ frontend/
 └── vite.config.ts                  # 构建配置
 ```
 
-**Structure Decision**: 采用宪法规定的"前后端分离"架构（Option 2: Web application）。后端使用 FastAPI 提供 REST API，前端使用 Vue 3（参考 CLAUDE.md 中前端为 JavaScript/TypeScript）构建 SPA。城市数据以静态 JSON 文件存储，无需数据库。
+**Structure Decision**: 采用宪法规定的"前后端分离"架构（Option 2: Web application）。后端使用 FastAPI 提供 REST API，前端使用 **Vue 3 + Element Plus 2.x** 构建 SPA，以 Element Plus 内建组件（el-form、el-autocomplete、el-date-picker、el-select 等）替代手写表单控件。城市数据以静态 JSON 文件存储，无需数据库。
 
 ## Complexity Tracking
 

@@ -1,36 +1,16 @@
 <!--
   Sync Impact Report
   ==================
-  Version change: N/A (template) → 1.4.0 (initial ratification)
-  Modified principles:
-    - [PRINCIPLE_1_NAME] → I. 规范驱动开发
-    - [PRINCIPLE_2_NAME] → II. 增量交付
-    - [PRINCIPLE_3_NAME] → III. 测试纪律
-    - [PRINCIPLE_4_NAME] → IV. 代码质量
-    - [PRINCIPLE_5_NAME] → V. 可观测性
-    - Added: VI. 审查与问责 (template had 5 slots; project requires 6)
+  Version change: 1.4.0 → 1.5.0
+  Modified principles: N/A
   Added sections:
-    - 项目结构 (replaces [SECTION_2_NAME]/[SECTION_2_CONTENT])
-    - 安全与环境 (replaces [SECTION_3_NAME]/[SECTION_3_CONTENT])
-    - 治理 (replaces [GOVERNANCE_RULES])
+    - 项目结构 → 新增"技术栈"表格，记录前后端技术选型
   Removed sections: None
   Templates requiring updates:
-    - .specify/templates/spec-template.md      ✅ aligned (user stories, requirements match P1/P2)
-    - .specify/templates/plan-template.md       ✅ aligned (Constitution Check gate matches P6)
-    - .specify/templates/tasks-template.md      ✅ aligned (phase structure matches P2/P3)
-    - .specify/templates/checklist-template.md  ✅ aligned (generic, no conflicts)
-    - .specify/templates/constitution-template.md ✅ aligned (source template)
+    - .specify/templates/plan-template.md       ✅ already aligned
   Runtime guidance requiring updates:
-    - .claude/commands/speckit.*.md             N/A (not found)
-    - .codex/prompts/speckit.*.md               N/A (not found)
-    - .gemini/commands/speckit.*.toml            N/A (not found)
-    - .github/prompts/speckit.*.prompt.md        N/A (not found)
-    - .github/agents/speckit.*.agent.md          N/A (not found)
-    - skills/speckit-*/SKILL.md                  N/A (not found)
-  Follow-up TODOs: None
-  Rationale for v1.4.0: Project documentation (CLAUDE.md) already references
-  constitution at v1.4.0 with 6 principles; this is the initial formal
-  ratification aligning with that reference.
+    - CLAUDE.md                                 ✅ update env requirements section
+  Rationale for v1.5.0: Record frontend UI framework (Element Plus 2.x) as project-level technology decision.
 -->
 
 # Travel Helper 宪法
@@ -133,11 +113,21 @@
     └── package.json           # npm 依赖
 ```
 
+**技术栈**：
+
+| 层级 | 技术选型 |
+|------|---------|
+| 后端 | Python 3.10+ / FastAPI / Pydantic |
+| 前端 | Vue 3 / TypeScript / **Element Plus 2.x** (UI 组件库) / Axios |
+| 构建 | Vite 5 / vue-tsc |
+| 测试 | pytest (后端) / Vitest (前端) |
+
 **约束**：
 
 - 后端 MUST NOT 直接引用前端代码，反之亦然
 - 层级依赖方向：api → services → models（MUST NOT 反向依赖）
 - 智能体（agents）MUST 通过服务层访问数据，MUST NOT 直接操作数据模型
+- 前端表单控件优先使用 Element Plus 内建组件，MUST NOT 重复实现已有组件功能
 - 新增目录或层级变更 MUST 在实现计划中说明理由
 
 ## 安全与环境
@@ -192,4 +182,4 @@
 - Speckit 流程的 Constitution Check 门禁 MUST 在设计和实现阶段通过
 - 违反宪法的变更 MUST 在复杂性追踪表中记录理由
 
-**版本**: 1.4.0 | **批准日期**: 2026-06-02 | **最近修订**: 2026-06-02
+**版本**: 1.5.0 | **批准日期**: 2026-06-02 | **最近修订**: 2026-06-05
